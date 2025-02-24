@@ -2,6 +2,9 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+import plotly.graph_objects as go
+import plotly.express as px
+import seaborn as sns
 from risk_model import calculate_cad_risk
 
 # Set page configuration
@@ -46,9 +49,9 @@ input_data = {
     "diabetes": diabetes
 }
 
-# Predict CAD risk when button is clicked
+# Predict CAD risk
 if st.sidebar.button("Predict CAD Risk"):
-    risk_score, risk_category = calculate_cad_risk(input_data)
+    risk_score, risk_category, feature_importance = calculate_cad_risk(input_data)
 
     # Display the results
     st.subheader("Prediction Result:")
@@ -59,13 +62,24 @@ if st.sidebar.button("Predict CAD Risk"):
     else:
         st.success(f"✅ You are at **Low Risk** for CAD. Risk Score: {risk_score}/20")
 
-    # Visualization - Risk Score Bar
-    st.subheader("Risk Score Breakdown")
-    risk_factors = list(input_data.keys())
-    factor_values = list(input_data.values())
+    # Gauge Chart for Risk Score
+    fig = go.Figure(go.Indicator(
+        mode="gauge+number",
+        value=risk_score,
+        title={"text": "CAD Risk Score"},
+        gauge={"axis": {"range": [0, 20]},
+               "bar": {"color": "red" if risk_score >= 10 else "orange" if risk_score >= 5 else "green"},
+               "steps": [
+                   {"range": [0, 5], "color": "lightgreen"},
+                   {"range": [5, 10], "color": "yellow"},
+                   {"range": [10, 20], "color": "red"}]
+               }
+    ))
 
-    fig, ax = plt.subplots()
-    ax.barh(risk_factors, factor_values, color="teal")
-    ax.set_xlabel("Feature Values")
-    ax.set_title("Feature Contribution to CAD Risk")
-    st.pyplot(fig)
+    st.plotly_chart(fig)
+
+    # Feature Importance Chart
+    st.subheader("🔍 Feature Contribution to Risk Score")
+    fig = px.bar(x=list(feature_importance.keys()), y=list(feature_importance.values()), 
+                 labels={"x": "Features", "y": "Impact Score"}, title="Feature Importance")
+    st.plotly_chart(fig)
