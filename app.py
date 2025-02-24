@@ -10,12 +10,12 @@ from risk_model import calculate_cad_risk
 # Set page configuration
 st.set_page_config(page_title="CAD Risk Prediction", page_icon="🫀", layout="wide")
 
-# Title
-st.title("🫀 Coronary Artery Disease (CAD) Risk Prediction")
-st.write("Enter your health parameters to estimate your risk of CAD.")
+# Title and subtitle
+st.markdown("<h1 style='text-align: center; color: darkred;'>🫀 Coronary Artery Disease (CAD) Risk Prediction</h1>", unsafe_allow_html=True)
+st.markdown("<h4 style='text-align: center; color: grey;'>Enter your health parameters to estimate your risk of CAD.</h4>", unsafe_allow_html=True)
 
 # Sidebar for user input
-st.sidebar.header("User Input Features")
+st.sidebar.header("🔍 Enter Your Health Parameters")
 
 # User Inputs
 age = st.sidebar.slider("Age", 20, 90, 50)
@@ -49,37 +49,63 @@ input_data = {
     "diabetes": diabetes
 }
 
-# Predict CAD risk
-if st.sidebar.button("Predict CAD Risk"):
+# Predict CAD risk when button is clicked
+if st.sidebar.button("🚀 Predict CAD Risk"):
     risk_score, risk_category, feature_importance = calculate_cad_risk(input_data)
 
-    # Display the results
-    st.subheader("Prediction Result:")
-    if risk_category == "High Risk":
-        st.error(f"⚠️ You are at **High Risk** for CAD! Risk Score: {risk_score}/20")
-    elif risk_category == "Moderate Risk":
-        st.warning(f"⚠️ You are at **Moderate Risk** for CAD. Risk Score: {risk_score}/20")
-    else:
-        st.success(f"✅ You are at **Low Risk** for CAD. Risk Score: {risk_score}/20")
+    # Scale the risk score to 100
+    scaled_risk_score = (risk_score / 20) * 100  # Convert to percentage scale
 
-    # Gauge Chart for Risk Score
+    # Display the result
+    st.subheader("📢 Prediction Result:")
+    if risk_category == "High Risk":
+        st.error(f"⚠️ **You are at High Risk for CAD!** Risk Score: **{scaled_risk_score:.2f}/100**")
+    elif risk_category == "Moderate Risk":
+        st.warning(f"⚠️ **You are at Moderate Risk for CAD.** Risk Score: **{scaled_risk_score:.2f}/100**")
+    else:
+        st.success(f"✅ **You are at Low Risk for CAD.** Risk Score: **{scaled_risk_score:.2f}/100**")
+
+    # Gauge Chart for Risk Score (Scaled 0-100)
+    st.subheader("📊 CAD Risk Score")
     fig = go.Figure(go.Indicator(
         mode="gauge+number",
-        value=risk_score,
-        title={"text": "CAD Risk Score"},
-        gauge={"axis": {"range": [0, 20]},
-               "bar": {"color": "red" if risk_score >= 10 else "orange" if risk_score >= 5 else "green"},
-               "steps": [
-                   {"range": [0, 5], "color": "lightgreen"},
-                   {"range": [5, 10], "color": "yellow"},
-                   {"range": [10, 20], "color": "red"}]
-               }
+        value=scaled_risk_score,
+        title={"text": "CAD Risk Score (%)"},
+        gauge={
+            "axis": {"range": [0, 100]},
+            "bar": {"color": "red" if scaled_risk_score >= 50 else "orange" if scaled_risk_score >= 30 else "green"},
+            "steps": [
+                {"range": [0, 30], "color": "lightgreen"},
+                {"range": [30, 50], "color": "yellow"},
+                {"range": [50, 100], "color": "red"}
+            ]
+        }
     ))
 
     st.plotly_chart(fig)
 
     # Feature Importance Chart
     st.subheader("🔍 Feature Contribution to Risk Score")
-    fig = px.bar(x=list(feature_importance.keys()), y=list(feature_importance.values()), 
-                 labels={"x": "Features", "y": "Impact Score"}, title="Feature Importance")
-    st.plotly_chart(fig)
+    if feature_importance:
+        fig = px.bar(x=list(feature_importance.keys()), y=list(feature_importance.values()),
+                     labels={"x": "Features", "y": "Impact Score"}, title="Feature Importance")
+        st.plotly_chart(fig)
+    else:
+        st.info("ℹ️ No significant risk factors detected.")
+
+    # Correlation Heatmap (Optional - If you have patient data)
+    st.subheader("📊 Correlation Between CAD Risk Factors")
+    df = pd.DataFrame({
+        "Total Cholesterol": np.random.randint(150, 280, 50),
+        "LDL Cholesterol": np.random.randint(80, 200, 50),
+        "HDL Cholesterol": np.random.randint(30, 80, 50),
+        "Triglycerides": np.random.randint(100, 300, 50),
+        "Systolic BP": np.random.randint(110, 180, 50),
+        "Diastolic BP": np.random.randint(70, 120, 50),
+        "C-Reactive Protein": np.random.uniform(0.1, 10, 50),
+        "Resting Heart Rate": np.random.randint(50, 110, 50),
+    })
+    
+    fig, ax = plt.subplots(figsize=(10, 6))
+    sns.heatmap(df.corr(), annot=True, cmap="coolwarm", fmt=".2f", ax=ax)
+    st.pyplot(fig)
