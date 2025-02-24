@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
+import plotly.graph_objects as go
 import plotly.express as px
 from risk_model import calculate_cad_risk
 
@@ -91,25 +92,27 @@ if st.sidebar.button("🚀 Predict CAD Risk"):
     sorted_features = sorted(feature_importance.items(), key=lambda x: x[1], reverse=True)[:3]
     for feature, impact in sorted_features:
         if feature == "Total Cholesterol":
-            st.warning("🟡 **High Total Cholesterol:** Consider a diet low in saturated fats and cholesterol. Increase intake of fruits, vegetables, and whole grains.")
+            st.warning("🟡 **High Total Cholesterol:** Reduce saturated fats, exercise regularly, and increase fiber intake.")
         elif feature == "LDL Cholesterol":
-            st.warning("🟡 **High LDL Cholesterol:** Incorporate healthy fats like omega-3s, and reduce trans fats. Regular physical activity can help lower LDL levels.")
+            st.warning("🟡 **High LDL Cholesterol:** Avoid fried foods, increase omega-3 intake, and exercise daily.")
         elif feature == "HDL Cholesterol":
-            st.warning("🟢 **Low HDL Cholesterol:** Engage in regular exercise, quit smoking, and maintain a healthy weight to boost HDL levels.")
+            st.warning("🟢 **Low HDL Cholesterol:** Increase healthy fats (avocado, nuts, olive oil) to improve HDL levels.")
         elif feature == "Triglycerides":
-            st.warning("🟡 **High Triglycerides:** Limit sugar and refined carbohydrates. Avoid excessive alcohol consumption and aim for regular physical activity.")
+            st.warning("🟡 **High Triglycerides:** Reduce sugar, limit alcohol, and follow a low-carb diet.")
         elif feature == "Systolic BP":
-            st.warning("🟡 **High Systolic Blood Pressure:** Reduce sodium intake, manage stress, and engage in regular physical activity.")
+            st.warning("🟡 **High Blood Pressure:** Reduce sodium, exercise regularly, and manage stress levels.")
         elif feature == "C-Reactive Protein":
-            st.warning("🟡 **Elevated C-Reactive Protein:** This indicates inflammation. Consider an anti-inflammatory diet rich in antioxidants.")
+            st.warning("🟡 **Inflammation Detected:** Include anti-inflammatory foods (turmeric, ginger, omega-3s) in your diet.")
         elif feature == "Smoking":
-            st.error("🔴 **Smoking:** Quitting smoking can significantly reduce your risk of CAD. Seek support if needed.")
+            st.error("🔴 **Smoking Detected:** Quitting smoking significantly lowers your CAD risk.")
         elif feature == "Diabetes":
-            st.error("🔴 **Diabetes:** Manage blood sugar levels through diet, exercise, and medication as prescribed.")
+            st.error("🔴 **Diabetes Detected:** Managing blood sugar through a balanced diet and exercise is crucial.")
 
     # Medical Comparison Table
     st.subheader("📊 How Do Your Values Compare to Normal Ranges?")
     df_reference = pd.DataFrame({
-        "Feature": ["Total
-::contentReference[oaicite:0]{index=0}
- 
+        "Feature": ["Total Cholesterol", "LDL Cholesterol", "HDL Cholesterol", "Triglycerides", "Systolic BP", "Diastolic BP"],
+        "Your Value": [total_cholesterol, ldl_cholesterol, hdl_cholesterol, triglycerides, systolic_bp, diastolic_bp],
+        "Normal Range": ["<200 mg/dL", "<100 mg/dL", ">40 mg/dL", "<150 mg/dL", "<120 mmHg", "<80 mmHg"]
+    })
+    st.table(df_reference)
