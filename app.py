@@ -90,22 +90,34 @@ if st.sidebar.button("🚀 Predict CAD Risk"):
         fig = px.bar(x=list(feature_importance.keys()), y=list(feature_importance.values()),
                      labels={"x": "Features", "y": "Impact Score"}, title="Feature Importance")
         st.plotly_chart(fig)
-    else:
-        st.info("ℹ️ No significant risk factors detected.")
 
-    # Correlation Heatmap (Optional - If you have patient data)
-    st.subheader("📊 Correlation Between CAD Risk Factors")
-    df = pd.DataFrame({
-        "Total Cholesterol": np.random.randint(150, 280, 50),
-        "LDL Cholesterol": np.random.randint(80, 200, 50),
-        "HDL Cholesterol": np.random.randint(30, 80, 50),
-        "Triglycerides": np.random.randint(100, 300, 50),
-        "Systolic BP": np.random.randint(110, 180, 50),
-        "Diastolic BP": np.random.randint(70, 120, 50),
-        "C-Reactive Protein": np.random.uniform(0.1, 10, 50),
-        "Resting Heart Rate": np.random.randint(50, 110, 50),
+        # Display Top 3 Highest Risk Factors with Recommendations
+        sorted_features = sorted(feature_importance.items(), key=lambda x: x[1], reverse=True)[:3]  # Get top 3
+        st.subheader("📝 Personalized Recommendations Based on Risk Factors")
+        
+        for feature, impact in sorted_features:
+            if feature == "Total Cholesterol":
+                st.warning(f"🟡 **{feature}**: Your cholesterol is high, which increases CAD risk. Consider a diet rich in fiber, fruits, and omega-3 fatty acids to improve heart health.")
+            elif feature == "LDL Cholesterol":
+                st.warning(f"🟡 **{feature}**: Elevated LDL ('bad' cholesterol) can cause plaque buildup in arteries. Try reducing saturated fats and increasing physical activity.")
+            elif feature == "HDL Cholesterol":
+                st.warning(f"🟢 **{feature}**: Your HDL ('good' cholesterol) level is low. Include more healthy fats (avocados, nuts, olive oil) to boost HDL.")
+            elif feature == "Triglycerides":
+                st.warning(f"🟡 **{feature}**: High triglycerides are linked to metabolic disorders. Reducing sugar intake and regular exercise can help.")
+            elif feature == "Systolic BP":
+                st.warning(f"🟡 **{feature}**: High blood pressure increases heart strain. Reducing sodium intake and managing stress can help.")
+            elif feature == "C-Reactive Protein":
+                st.warning(f"🟡 **{feature}**: High CRP indicates inflammation. Consider an anti-inflammatory diet with turmeric, ginger, and omega-3s.")
+            elif feature == "Smoking":
+                st.warning(f"🔴 **{feature}**: Smoking is a **major** CAD risk factor. Reducing or quitting can significantly lower your risk.")
+            elif feature == "Diabetes":
+                st.warning(f"🔴 **{feature}**: Diabetes significantly increases CAD risk. Managing blood sugar levels with a healthy diet and regular exercise is crucial.")
+
+    # Reference Normal Ranges for Key Features
+    st.subheader("📊 How Do Your Values Compare to Normal Ranges?")
+    df_reference = pd.DataFrame({
+        "Feature": ["Total Cholesterol", "LDL Cholesterol", "HDL Cholesterol", "Triglycerides", "Systolic BP", "Diastolic BP"],
+        "Your Value": [total_cholesterol, ldl_cholesterol, hdl_cholesterol, triglycerides, systolic_bp, diastolic_bp],
+        "Normal Range": ["<200 mg/dL", "<100 mg/dL", ">40 mg/dL", "<150 mg/dL", "<120 mmHg", "<80 mmHg"]
     })
-    
-    fig, ax = plt.subplots(figsize=(10, 6))
-    sns.heatmap(df.corr(), annot=True, cmap="coolwarm", fmt=".2f", ax=ax)
-    st.pyplot(fig)
+    st.table(df_reference)
