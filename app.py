@@ -25,12 +25,11 @@ systolic_bp = st.sidebar.slider("Systolic BP (mmHg)", 90, 200, 120)
 diastolic_bp = st.sidebar.slider("Diastolic BP (mmHg)", 60, 120, 80)
 c_reactive_protein = st.sidebar.slider("C-Reactive Protein (mg/L)", 0.1, 10.0, 2.0)
 resting_heart_rate = st.sidebar.slider("Resting Heart Rate (bpm)", 40, 120, 70)
+sleep_duration = st.sidebar.slider("Sleep Duration (hours)", 3, 10, 7)  # NEWLY ADDED FIELD
 smoking = st.sidebar.selectbox("Smoking Status", ["Non-Smoker", "Smoker"])
-diabetes = st.sidebar.selectbox("Diabetes", ["No", "Yes"])
 
 # Convert categorical inputs
 smoking = 1 if smoking == "Smoker" else 0
-diabetes = 1 if diabetes == "Yes" else 0
 
 # Collect input data
 input_data = {
@@ -43,8 +42,8 @@ input_data = {
     "diastolic_bp": diastolic_bp,
     "c_reactive_protein": c_reactive_protein,
     "resting_heart_rate": resting_heart_rate,
-    "smoking": smoking,
-    "diabetes": diabetes
+    "sleep_duration": sleep_duration,  # INCLUDED IN MODEL INPUT
+    "smoking": smoking
 }
 
 # Prediction Button
@@ -105,14 +104,14 @@ if st.sidebar.button("🚀 Predict CAD Risk"):
             st.warning("🟡 **Inflammation Detected:** Include anti-inflammatory foods (turmeric, ginger, omega-3s) in your diet.")
         elif feature == "Smoking":
             st.error("🔴 **Smoking Detected:** Quitting smoking significantly lowers your CAD risk.")
-        elif feature == "Diabetes":
-            st.error("🔴 **Diabetes Detected:** Managing blood sugar through a balanced diet and exercise is crucial.")
+        elif feature == "Sleep Duration":
+            st.warning("🟡 **Poor Sleep Duration:** Aim for 7-9 hours of sleep per night to reduce heart disease risk.")
 
     # Medical Comparison Table
     st.subheader("📊 How Do Your Values Compare to Normal Ranges?")
     df_reference = pd.DataFrame({
-        "Feature": ["Total Cholesterol", "LDL Cholesterol", "HDL Cholesterol", "Triglycerides", "Systolic BP", "Diastolic BP"],
-        "Your Value": [total_cholesterol, ldl_cholesterol, hdl_cholesterol, triglycerides, systolic_bp, diastolic_bp],
-        "Normal Range": ["<200 mg/dL", "<100 mg/dL", ">40 mg/dL", "<150 mg/dL", "<120 mmHg", "<80 mmHg"]
+        "Feature": ["Total Cholesterol", "LDL Cholesterol", "HDL Cholesterol", "Triglycerides", "Systolic BP", "Diastolic BP", "Sleep Duration"],
+        "Your Value": [total_cholesterol, ldl_cholesterol, hdl_cholesterol, triglycerides, systolic_bp, diastolic_bp, sleep_duration],
+        "Normal Range": ["<200 mg/dL", "<100 mg/dL", ">40 mg/dL", "<150 mg/dL", "<120 mmHg", "<80 mmHg", "7-9 hours"]
     })
     st.table(df_reference)
